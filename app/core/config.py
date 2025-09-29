@@ -9,7 +9,7 @@ class AppSettings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     DATABASE_URL: str = "sqlite:///./spots_de_oeiras.db"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "a_very_secret_key"
+    SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
 

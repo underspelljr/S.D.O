@@ -24,6 +24,10 @@
 - Added a login endpoint to generate access tokens.
 - Protected admin-only endpoints with an admin check.
 
+### Fixed
+
+- Removed hardcoded `SECRET_KEY` from the source code and moved it to the `.env` file.
+
 ### Other
 
 - Provided guidance on diagnosing 'resource exhausted' errors, including checking system resources, application logs, code inspection for memory leaks, unclosed database connections, file handles, and using profilers.
