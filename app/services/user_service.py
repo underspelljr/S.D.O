@@ -5,6 +5,8 @@ from app.schemas.user import UserCreate, UserUpdate
 
 logger = logging.getLogger(__name__)
 
+from app.core.security import get_password_hash
+
 def create_user(db: Session, user_create: UserCreate) -> User:
     """Creates a new user in the database. The first user is an admin."""
     logger.info(f"Creating user with name: {user_create.name}")
@@ -12,13 +14,15 @@ def create_user(db: Session, user_create: UserCreate) -> User:
     # Check if there are any users in the database
     user_count = db.query(User).count()
     
+    hashed_password = get_password_hash(user_create.password)
+    
     if user_count == 0:
         # First user is an admin
-        db_user = User(name=user_create.name, permission_level=2) # ADMIN
+        db_user = User(name=user_create.name, hashed_password=hashed_password, permission_level=2) # ADMIN
         logger.info(f"Creating first user '{user_create.name}' as admin.")
     else:
         # Subsequent users are pending validation
-        db_user = User(name=user_create.name, permission_level=0) # PENDING_VALIDATION
+        db_user = User(name=user_create.name, hashed_password=hashed_password, permission_level=0) # PENDING_VALIDATION
         logger.info(f"Creating user '{user_create.name}' with pending validation.")
         
     db.add(db_user)

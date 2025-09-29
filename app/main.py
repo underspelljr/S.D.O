@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.logging_config import setup_logging
 from app.db.base import Base
 from app.db.session import engine
-from app.routers import users, spots
+from app.routers import users, spots, login
 
 # Setup logging
 setup_logging()
@@ -40,6 +40,7 @@ templates = Jinja2Templates(directory="app/templates")
 # Include API routers
 app.include_router(users.router, tags=["Users"])
 app.include_router(spots.router, tags=["Spots"])
+app.include_router(login.router, tags=["Login"])
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):

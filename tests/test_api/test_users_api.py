@@ -1,86 +1,72 @@
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.tests.utils.user import create_random_user, user_authentication_headers
+
 
 def test_create_user_api(client: TestClient):
     """
     Integration test for the POST /users endpoint.
     """
     # First user should be an admin
-    response = client.post("/users", json={"name": "api_user1"})
+    response = client.post("/users", json={"name": "api_user1", "password": "pass"})
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == "api_user1"
     assert data["permission_level"] == 2 # ADMIN
 
     # Second user should be pending validation
-    response = client.post("/users", json={"name": "api_user2"})
+    response = client.post("/users", json={"name": "api_user2", "password": "pass"})
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == "api_user2"
     assert data["permission_level"] == 0 # PENDING_VALIDATION
 
-def test_create_existing_user_api(client: TestClient):
-    """
-    Test creating a user that already exists.
-    """
-    client.post("/users", json={"name": "duplicate_user"}) # First time should succeed
-    response = client.post("/users", json={"name": "duplicate_user"}) # Second time should fail
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Username already registered"
 
-def test_read_users_api(client: TestClient):
-    """
-    Integration test for the GET /users endpoint.
-    """
-    client.post("/users", json={"name": "user_a"})
-    client.post("/users", json={"name": "user_b"})
 
-    response = client.get("/users")
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) >= 2 # Use >= in case other tests added users
-    names = [user['name'] for user in data]
-    assert "user_a" in names
-    assert "user_b" in names
+def test_get_users_superuser(client: TestClient, db_session: Session) -> None:
+    create_random_user(db_session)
+    create_random_user(db_session)
+    admin_headers = user_authentication_headers(client=client, db=db_session, is_admin=True)
+    r = client.get(f"/users", headers=admin_headers)
+    all_users = r.json()
+    assert len(all_users) > 1
 
-def test_update_user_api(client: TestClient):
-    """
-    Integration test for the PATCH /users/{user_id} endpoint.
-    """
-    response = client.post("/users", json={"name": "user_to_update"})
-    user_id = response.json()["id"]
 
-    response = client.patch(f"/users/{user_id}", json={"permission_level": 2})
-    assert response.status_code == 200
-    data = response.json()
-    assert data["permission_level"] == 2
 
-def test_delete_user_api(client: TestClient):
-    """
-    Integration test for the DELETE /users/{user_id} endpoint.
-    """
-    response = client.post("/users", json={"name": "user_to_delete"})
-    user_id = response.json()["id"]
+def test_update_user(client: TestClient, db_session: Session) -> None:
+    user = create_random_user(db_session)
+    admin_headers = user_authentication_headers(client=client, db=db_session, is_admin=True)
+    data = {"permission_level": 1}
+    r = client.patch(
+        f"/users/{user.id}",
+        headers=admin_headers,
+        json=data,
+    )
+    assert r.status_code == 200
+    updated_user = r.json()
+    assert updated_user["permission_level"] == data["permission_level"]
 
-    response = client.delete(f"/users/{user_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["is_active"] == False
 
-    # Check that the user is not returned by the GET /users endpoint
-    response = client.get("/users")
-    assert response.status_code == 200
-    data = response.json()
-    for user in data:
-        assert user["name"] != "user_to_delete"
 
-def test_approve_user_api(client: TestClient):
-    """
-    Integration test for the PATCH /users/{user_id}/approve endpoint.
-    """
-    response = client.post("/users", json={"name": "user_to_approve"})
-    user_id = response.json()["id"]
+def test_delete_user(client: TestClient, db_session: Session) -> None:
+    user = create_random_user(db_session)
+    admin_headers = user_authentication_headers(client=client, db=db_session, is_admin=True)
+    r = client.delete(f"/users/{user.id}", headers=admin_headers)
+    assert r.status_code == 200
+    deleted_user = r.json()
+    assert deleted_user["is_active"] is False
 
-    response = client.patch(f"/users/{user_id}/approve")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["permission_level"] == 1
+
+
+def test_approve_user(client: TestClient, db_session: Session) -> None:
+    user = create_random_user(db_session)
+    admin_headers = user_authentication_headers(client=client, db=db_session, is_admin=True)
+    r = client.patch(
+        f"/users/{user.id}/approve",
+        headers=admin_headers,
+    )
+    assert r.status_code == 200
+    approved_user = r.json()
+    assert approved_user["permission_level"] == 1

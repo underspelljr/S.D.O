@@ -20,3 +20,10 @@
 - User permission levels (admin, user, pending validation).
 - Admin approval for new user creation.
 - The first user created is now automatically an admin.
+- Implemented authentication and authorization using JWT tokens.
+- Added a login endpoint to generate access tokens.
+- Protected admin-only endpoints with an admin check.
+
+### Other
+
+- Provided guidance on diagnosing 'resource exhausted' errors, including checking system resources, application logs, code inspection for memory leaks, unclosed database connections, file handles, and using profilers.

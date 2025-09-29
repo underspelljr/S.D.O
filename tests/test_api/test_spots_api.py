@@ -5,7 +5,7 @@ def test_create_spot_api(client: TestClient):
     Integration test for creating a spot.
     """
     # First, create a user
-    user_res = client.post("/users", json={"name": "spot_creator"})
+    user_res = client.post("/users", json={"name": "spot_creator", "password": "pass"})
     assert user_res.status_code == 201
     user_id = user_res.json()["id"]
 
@@ -37,7 +37,7 @@ def test_read_one_spot_api(client: TestClient):
     Integration test for retrieving a single spot by ID.
     """
     # Create user and spot first
-    user_id = client.post("/users", json={"name": "spot_reader"}).json()["id"]
+    user_id = client.post("/users", json={"name": "spot_reader", "password": "pass"}).json()["id"]
     spot_data = {
         "name": "Boca do Inferno", "latitude": 38.69, "longitude": -9.49, "user_id": user_id
     }

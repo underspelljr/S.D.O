@@ -8,6 +8,10 @@ class AppSettings(BaseSettings):
     APP_NAME: str = "Spots de Oeiras"
     LOG_LEVEL: str = "INFO"
     DATABASE_URL: str = "sqlite:///./spots_de_oeiras.db"
+    API_V1_STR: str = "/api/v1"
+    SECRET_KEY: str = "a_very_secret_key"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ALGORITHM: str = "HS256"
 
     # Pydantic V2 configuration to read from the .env file
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')

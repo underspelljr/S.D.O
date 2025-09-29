@@ -7,7 +7,7 @@ class UserBase(BaseModel):
 
 # Schema for creating a user
 class UserCreate(UserBase):
-    pass
+    password: str
 
 # Schema for reading a user (from API)
 class User(UserBase):

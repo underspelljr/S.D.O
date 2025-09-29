@@ -8,3 +8,7 @@ httpx
 python-dotenv
 jinja2
 requests
+python-jose
+passlib
+bcrypt
+python-multipart
