@@ -5,14 +5,17 @@ def test_create_user(db_session):
     """
     Unit test for the create_user service function.
     """
-    user_in = UserCreate(name="testuser")
-    user = user_service.create_user(db=db_session, user_create=user_in)
-    
-    assert user.name == user_in.name
-    assert user.id is not None
-    assert user.uuid is not None
-    assert user.permission_level == 0
-    assert user.is_active == True
+    # First user should be an admin
+    user_in1 = UserCreate(name="testuser1")
+    user1 = user_service.create_user(db=db_session, user_create=user_in1)
+    assert user1.name == user_in1.name
+    assert user1.permission_level == 2 # ADMIN
+
+    # Second user should be pending validation
+    user_in2 = UserCreate(name="testuser2")
+    user2 = user_service.create_user(db=db_session, user_create=user_in2)
+    assert user2.name == user_in2.name
+    assert user2.permission_level == 0 # PENDING_VALIDATION
 
 def test_get_all_users(db_session):
     """

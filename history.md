@@ -19,3 +19,4 @@
 - User deletion functionality (soft delete).
 - User permission levels (admin, user, pending validation).
 - Admin approval for new user creation.
+- The first user created is now automatically an admin.

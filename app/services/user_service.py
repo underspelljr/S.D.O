@@ -6,13 +6,24 @@ from app.schemas.user import UserCreate, UserUpdate
 logger = logging.getLogger(__name__)
 
 def create_user(db: Session, user_create: UserCreate) -> User:
-    """Creates a new user in the database with pending validation."""
+    """Creates a new user in the database. The first user is an admin."""
     logger.info(f"Creating user with name: {user_create.name}")
-    db_user = User(name=user_create.name, permission_level=0) # PENDING_VALIDATION
+    
+    # Check if there are any users in the database
+    user_count = db.query(User).count()
+    
+    if user_count == 0:
+        # First user is an admin
+        db_user = User(name=user_create.name, permission_level=2) # ADMIN
+        logger.info(f"Creating first user '{user_create.name}' as admin.")
+    else:
+        # Subsequent users are pending validation
+        db_user = User(name=user_create.name, permission_level=0) # PENDING_VALIDATION
+        logger.info(f"Creating user '{user_create.name}' with pending validation.")
+        
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    logger.info(f"User '{db_user.name}' created with ID {db_user.id} and is pending validation.")
     return db_user
 
 def get_user_by_name(db: Session, name: str) -> User | None:

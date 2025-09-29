@@ -67,3 +67,10 @@ venv.bak/
 # IDE
 .idea/
 .vscode/
+
+#GeminiCLI
+
+/dist
+/build
+/output
+/.gemini

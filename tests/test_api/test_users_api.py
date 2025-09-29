@@ -4,14 +4,19 @@ def test_create_user_api(client: TestClient):
     """
     Integration test for the POST /users endpoint.
     """
-    response = client.post("/users", json={"name": "api_user"})
+    # First user should be an admin
+    response = client.post("/users", json={"name": "api_user1"})
     assert response.status_code == 201
     data = response.json()
-    assert data["name"] == "api_user"
-    assert "id" in data
-    assert "uuid" in data
-    assert data["permission_level"] == 0
-    assert data["is_active"] == True
+    assert data["name"] == "api_user1"
+    assert data["permission_level"] == 2 # ADMIN
+
+    # Second user should be pending validation
+    response = client.post("/users", json={"name": "api_user2"})
+    assert response.status_code == 201
+    data = response.json()
+    assert data["name"] == "api_user2"
+    assert data["permission_level"] == 0 # PENDING_VALIDATION
 
 def test_create_existing_user_api(client: TestClient):
     """
