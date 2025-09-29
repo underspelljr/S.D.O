@@ -16,3 +16,6 @@
 - Simple Leaflet.js frontend to display and create spots.
 - `README.md` with full setup and usage instructions.
 - `.env` file for configuration.
+- User deletion functionality (soft delete).
+- User permission levels (admin, user, pending validation).
+- Admin approval for new user creation.
